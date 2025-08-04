@@ -26,22 +26,6 @@ This Java-based project allows users to **compute the IUPAC name of organic comp
 
 ---
 
-## 🗂 Project Structure
-
-```
-src/
- ├── main/
- │    └── java/
- │         └── org/
- │              └── anujchem/
- │                   ├── parser/
- │                   ├── model/
- │                   └── naming/
- └── test/
-      └── java/
-           └── ...
-```
-
 - `parser/` handles input parsing (e.g., SMILES, formulas)
 - `model/` holds molecular data models
 - `naming/` contains the logic for IUPAC name generation
@@ -52,7 +36,7 @@ src/
 
 ### Clone the Repo
 ```bash
-git clone https://github.com/yourusername/organic-namer.git
+git clone https://github.com/FerexxisGod/NamingSmileCompounds.git
 cd organic-namer
 ```
 
