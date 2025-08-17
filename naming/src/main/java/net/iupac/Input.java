@@ -1,6 +1,6 @@
 package net.iupac;
 
-
+import net.iupac.info_and_controle.Locants;
 
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.CDKException;
@@ -12,7 +12,7 @@ import org.openscience.cdk.tools.manipulator.AtomContainerManipulator;
 
 public class Input {
 
-    static String smiles = "CC(=O)[O-].[Na+]"; 
+    static final String smiles = "CC(C(=CCl)C(Cl)(Br))CCC"; 
     static IAtomContainer molecule = input(smiles);
 
 
@@ -38,8 +38,6 @@ public class Input {
         AtomTypeAwareSaturationChecker checker = new AtomTypeAwareSaturationChecker();
         
         for (IAtom atom : molecule.atoms()) {
-            Integer valency = atom.getValency();
-            System.out.println("Atom #" + i + " (" + atom.getSymbol() + ") valency: " + valency);
 
             try {
                 if (!checker.isSaturated(atom, molecule)) {
@@ -57,5 +55,7 @@ public class Input {
 
     public static void main(String[] args) {
         System.out.println(isValidInput(molecule)? "Valid input" : "Invalid input");
+        Locants locants = new Locants();
+        System.out.println("Terminal atoms: " + locants.terminalAtom(molecule));
     }
 }
