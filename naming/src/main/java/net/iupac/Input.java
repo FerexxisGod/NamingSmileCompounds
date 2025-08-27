@@ -12,8 +12,8 @@ import org.openscience.cdk.tools.manipulator.AtomContainerManipulator;
 
 public class Input {
 
-    static final String smiles = "CC(C(=CCl)C(Cl)(Br))CCC"; 
-    static IAtomContainer molecule = input(smiles);
+    public static final String smiles = "CC(C(C)(Cl)C(Br)(Cl))CCC"; 
+    public static IAtomContainer Molecule = isValidInput(input(smiles)) ? input(smiles): null;
 
 
 
@@ -54,8 +54,11 @@ public class Input {
     }
 
     public static void main(String[] args) {
-        System.out.println(isValidInput(molecule)? "Valid input" : "Invalid input");
-        Locants locants = new Locants();
-        System.out.println("Terminal atoms: " + locants.terminalAtom(molecule));
+        System.out.println(isValidInput(Molecule)? "Valid input" : "Invalid input");
+        Locants locants = new Locants(Molecule);
+        System.out.println("Terminal atoms: " + locants.Terminal);
+        System.out.println("Longest chain: "+ locants.LongestChain);
+        System.out.println("Branch count: "+ locants.BranchCount);
+        
     }
 }
