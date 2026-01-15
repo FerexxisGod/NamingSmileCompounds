@@ -11,14 +11,14 @@ public class Locants {
     public List<Integer> Terminal;
     public List<Integer> LongestChain;
     public int BranchCount;
-    
+    public Map<IAtom, Integer> LocantMap = new HashMap<>();
 
     public Locants(IAtomContainer molecule){
         this.Molecule = molecule;
         this.Terminal = terminalAtom(molecule);
         this.LongestChain = branchAnalysis().get(0);
         this.BranchCount = branchAnalysis().get(1).get(0);
-            
+        this.LocantMap = setLocants();
 
     }
     Locants(){
@@ -114,6 +114,16 @@ public class Locants {
         }
 
         return branches;
+    }
+
+    public Map<IAtom, Integer> setLocants(){
+        Map<IAtom, Integer> Helper = new HashMap<>();
+        int a = 1;
+        for(int i: this.LongestChain){
+            IAtom atom = this.Molecule.getAtom(i);
+            Helper.put(atom, a++);
+        }
+        return Helper;
     }
 
 

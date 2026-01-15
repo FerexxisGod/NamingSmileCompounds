@@ -56,9 +56,21 @@ public class Input {
     public static void main(String[] args) {
         System.out.println(isValidInput(Molecule)? "Valid input" : "Invalid input");
         Locants locants = new Locants(Molecule);
+        RootWord rw = new RootWord();
         System.out.println("Terminal atoms: " + locants.Terminal);
         System.out.println("Longest chain: "+ locants.LongestChain);
         System.out.println("Branch count: "+ locants.BranchCount);
+        for(IAtom atom: locants.LocantMap.keySet()){
+            System.out.println("Atom index: "+Molecule.indexOf(atom)+" Symbol: "+atom.getSymbol());
+        }
+        for(Integer i: locants.LocantMap.values()){
+            System.out.print(i+" ");
+
+        }
+        System.out.println();
+        //System.out.println(locants.setLocants());
+        System.out.println(rw.rootWord);
+        System.out.println();
         
     }
 }
