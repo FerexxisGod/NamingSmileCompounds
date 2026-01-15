@@ -12,7 +12,7 @@ import org.openscience.cdk.tools.manipulator.AtomContainerManipulator;
 
 public class Input {
 
-    public static final String smiles = "CC(C(C)(Cl)C(Br)(Cl))CCC"; 
+    public static final String smiles = "C#CC(C=C)(CCC)CCC"; 
     public static IAtomContainer Molecule = isValidInput(input(smiles)) ? input(smiles): null;
 
 
@@ -56,21 +56,14 @@ public class Input {
     public static void main(String[] args) {
         System.out.println(isValidInput(Molecule)? "Valid input" : "Invalid input");
         Locants locants = new Locants(Molecule);
-        RootWord rw = new RootWord();
+        Suffix suffix = new Suffix();
+        FinalBuilder fb = new FinalBuilder();
         System.out.println("Terminal atoms: " + locants.Terminal);
         System.out.println("Longest chain: "+ locants.LongestChain);
+        System.out.println("Chain length: " + locants.LongestChain.size());
         System.out.println("Branch count: "+ locants.BranchCount);
-        for(IAtom atom: locants.LocantMap.keySet()){
-            System.out.println("Atom index: "+Molecule.indexOf(atom)+" Symbol: "+atom.getSymbol());
-        }
-        for(Integer i: locants.LocantMap.values()){
-            System.out.print(i+" ");
-
-        }
-        System.out.println();
-        //System.out.println(locants.setLocants());
-        System.out.println(rw.rootWord);
-        System.out.println();
-        
+        System.out.println("\nSuffix: " + suffix.getSuffix());
+        System.out.println("Root word: " + new RootWord().rootWord);
+        System.out.println("Final name: " + fb.finalName);
     }
 }

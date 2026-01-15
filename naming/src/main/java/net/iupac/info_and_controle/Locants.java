@@ -2,8 +2,7 @@ package net.iupac.info_and_controle;
 
 import java.util.*;
 
-import org.openscience.cdk.interfaces.IAtom;
-import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.*;
 
 public class Locants {
 
@@ -58,6 +57,37 @@ public class Locants {
         return longestChain;
     }
 
+    // Find the longest chain that contains a specific functional group (double/triple bond)
+    public List<Integer> dfsLongestChainWithDoubleBond(IAtomContainer Molecule, IAtom startAtom, int atom1, int atom2) {
+        Set<IAtom> visited = new HashSet<>();
+        List<Integer> longestChain = new ArrayList<>();
+        List<Integer> currentChain = new ArrayList<>();
+        dfHelperWithBond(Molecule, startAtom, visited, currentChain, longestChain, atom1, atom2);
+        return longestChain;
+    }
+
+    private void dfHelperWithBond(IAtomContainer molecule, IAtom currentAtom, Set<IAtom> visited, List<Integer> currentChain, List<Integer> longestChain, int bondAtom1, int bondAtom2) {
+        visited.add(currentAtom);
+        currentChain.add(molecule.indexOf(currentAtom));
+        
+        // Check if current chain contains the bond
+        boolean hasDoubleBond = currentChain.contains(bondAtom1) && currentChain.contains(bondAtom2);
+        
+        // Update longest chain if current chain is longer AND contains the bond
+        if (hasDoubleBond && currentChain.size() > longestChain.size()) {
+            longestChain.clear();
+            longestChain.addAll(currentChain);
+        }
+
+        for (IAtom neighbor : molecule.getConnectedAtomsList(currentAtom)) {
+            if (!visited.contains(neighbor) && "C".equals(neighbor.getSymbol())) {
+                dfHelperWithBond(molecule, neighbor, visited, currentChain, longestChain, bondAtom1, bondAtom2);
+                visited.remove(neighbor);
+                currentChain.remove(currentChain.size() - 1);
+            }
+        }
+    }
+
     private void dfsHelper(IAtomContainer molecule, IAtom startAtom, Set<IAtom> visited, List<Integer> currentChain, List<Integer> longestChain) {
         visited.add(startAtom);
         currentChain.add(molecule.indexOf(startAtom));
@@ -79,25 +109,103 @@ public class Locants {
 
     public List<List<Integer>> branchAnalysis(){
         List<List<Integer>> LCBR = new ArrayList<>();
-
-        LCBR.add(dfsLongestChain(this.Molecule, this.Molecule.getAtom(this.Terminal.get(0))));
-        LCBR.add(Arrays.asList(branchCount(LCBR.get(0))));
-        for (Integer idx : this.Terminal) {
-            IAtom terminalAtom = this.Molecule.getAtom(idx);
-            List<Integer> chain = dfsLongestChain(this.Molecule, terminalAtom);
-            List<Integer> branchInfo = Arrays.asList(branchCount(chain));
-            if (chain.size() > LCBR.get(0).size()) {
-                LCBR.clear();
-                LCBR.add(chain);
-                LCBR.add(branchInfo);
-
-            } else if (chain.size() == LCBR.get(0).size() && branchCount(chain)>branchCount(LCBR.get(0))) {
-                LCBR.clear();
-                LCBR.add(chain);
-                LCBR.add(branchInfo);
+        
+        // Find all double/triple bonds in the molecule
+        List<int[]> functionalBonds = new ArrayList<>();
+        for (IBond bond : this.Molecule.bonds()) {
+            if (bond.getOrder() == IBond.Order.DOUBLE || bond.getOrder() == IBond.Order.TRIPLE) {
+                int idx1 = this.Molecule.indexOf(bond.getBegin());
+                int idx2 = this.Molecule.indexOf(bond.getEnd());
+                functionalBonds.add(new int[]{idx1, idx2});
             }
         }
+        
+        // If molecule has double/triple bonds, find the longest chain containing them
+        if (!functionalBonds.isEmpty()) {
+            int maxLength = 0;
+            List<Integer> bestChain = new ArrayList<>();
+            int maxBranches = 0;
+            
+            // Try each bond
+            for (int[] bond : functionalBonds) {
+                // Try starting from each carbon
+                List<Integer> carbonAtoms = new ArrayList<>();
+                for (IAtom atom : this.Molecule.atoms()) {
+                    if (atom.getSymbol().equals("C")) {
+                        carbonAtoms.add(this.Molecule.indexOf(atom));
+                    }
+                }
+                
+                for (Integer atomIdx : carbonAtoms) {
+                    IAtom atom = this.Molecule.getAtom(atomIdx);
+                    List<Integer> chain = dfsLongestChainWithDoubleBond(this.Molecule, atom, bond[0], bond[1]);
+                    
+                    if (!chain.isEmpty()) {
+                        int branches = branchCount(chain);
+                        if (chain.size() > maxLength) {
+                            maxLength = chain.size();
+                            bestChain = new ArrayList<>(chain);
+                            maxBranches = branches;
+                        } else if (chain.size() == maxLength && branches > maxBranches) {
+                            bestChain = new ArrayList<>(chain);
+                            maxBranches = branches;
+                        }
+                    }
+                }
+            }
+            
+            if (!bestChain.isEmpty()) {
+                LCBR.add(bestChain);
+                LCBR.add(Arrays.asList(maxBranches));
+                return LCBR;
+            }
+        }
+        
+        // If no chains with functional groups, use standard longest chain search
+        List<Integer> carbonAtoms = new ArrayList<>();
+        for (IAtom atom : this.Molecule.atoms()) {
+            if (atom.getSymbol().equals("C")) {
+                carbonAtoms.add(this.Molecule.indexOf(atom));
+            }
+        }
+        
+        int maxLength = 0;
+        List<Integer> bestChain = new ArrayList<>();
+        int maxBranches = 0;
+        
+        for (Integer atomIdx : carbonAtoms) {
+            IAtom atom = this.Molecule.getAtom(atomIdx);
+            List<Integer> chain = dfsLongestChain(this.Molecule, atom);
+            int branches = branchCount(chain);
+            
+            if (chain.size() > maxLength) {
+                maxLength = chain.size();
+                bestChain = new ArrayList<>(chain);
+                maxBranches = branches;
+            } else if (chain.size() == maxLength && branches > maxBranches) {
+                bestChain = new ArrayList<>(chain);
+                maxBranches = branches;
+            }
+        }
+        
+        LCBR.add(bestChain);
+        LCBR.add(Arrays.asList(maxBranches));
         return LCBR;
+    }
+
+    // Count functional groups (double/triple bonds) on the chain
+    public int countFunctionalGroupsOnChain(List<Integer> chain) {
+        int count = 0;
+        for (IBond bond : this.Molecule.bonds()) {
+            if (bond.getOrder() == IBond.Order.DOUBLE || bond.getOrder() == IBond.Order.TRIPLE) {
+                int beginIdx = this.Molecule.indexOf(bond.getBegin());
+                int endIdx = this.Molecule.indexOf(bond.getEnd());
+                if (chain.contains(beginIdx) && chain.contains(endIdx)) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public int branchCount(List<Integer> LongestChain){

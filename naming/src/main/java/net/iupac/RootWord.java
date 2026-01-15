@@ -3,14 +3,13 @@ package net.iupac;
 import net.iupac.info_and_controle.Locants;
 
 class RootWord{
-    public String rootWord = "";
-
     Locants locants = new Locants(Input.Molecule);
+
+
+    public String rootWord = rootWordDeterminer();
     
-    RootWord(){
-        rootWordDeterminer();
-    }
-    private void rootWordDeterminer(){
+        
+    private String rootWordDeterminer(){
         int chainLength = locants.LongestChain.size();
         if(chainLength > 20&& chainLength <= 100){
             String tens = switch(chainLength / 10){
@@ -37,31 +36,31 @@ class RootWord{
                 case 9: yield "nona";
                 default: yield "";
             };
-            rootWord = units + tens;
+            return units + tens;
         }
         else
             switch(chainLength){
-                case 1: rootWord = "meth"; break;
-                case 2: rootWord = "eth"; break;
-                case 3: rootWord = "prop"; break;
-                case 4: rootWord = "but"; break;
-                case 5: rootWord = "pent"; break;
-                case 6: rootWord = "hex"; break;
-                case 7: rootWord = "hept"; break;
-                case 8: rootWord = "oct"; break;
-                case 9: rootWord = "non"; break;
-                case 10: rootWord = "dec"; break;
-                case 11: rootWord = "undec"; break;
-                case 12: rootWord = "dodec"; break;
-                case 13: rootWord = "tridec"; break;
-                case 14: rootWord = "tetradec"; break;
-                case 15: rootWord = "pentadec"; break;
-                case 16: rootWord = "hexadec"; break;
-                case 17: rootWord = "heptadec"; break;
-                case 18: rootWord = "octadec"; break;
-                case 19: rootWord = "nonadec"; break;
-                case 20: rootWord = "icos"; break;
-                default: rootWord = ""; break;
+                case 1: return "meth"; 
+                case 2: return "eth"; 
+                case 3: return "prop"; 
+                case 4: return "but"; 
+                case 5: return "pent"; 
+                case 6: return "hex"; 
+                case 7: return "hept"; 
+                case 8: return "oct"; 
+                case 9: return "non"; 
+                case 10: return "dec"; 
+                case 11: return "undec"; 
+                case 12: return "dodec"; 
+                case 13: return "tridec"; 
+                case 14: return "tetradec"; 
+                case 15: return "pentadec"; 
+                case 16: return "hexadec"; 
+                case 17: return "heptadec"; 
+                case 18: return "octadec"; 
+                case 19: return "nonadec"; 
+                case 20: return "icos"; 
+                default: return ""; 
             }
 
     }
